@@ -1,17 +1,18 @@
-const menu = document.querySelector('#mobile-menu')
-const menuLinks = document.querySelector('.navbar_menu')
+document.addEventListener("DOMContentLoaded", () => {
+    const menu = document.querySelector('#mobile-menu');
+    const menuLinks = document.querySelector('.navbar_menu');
+    if (menu && menuLinks) {
+        menu.addEventListener('click', () => {
+            menu.classList.toggle('is-active');
+            menuLinks.classList.toggle('active');
+        });
+    }
 
-menu.addEventListener('click', function(){
-    menu.classList.toggle('is-active');
-    menuLinks.classList.toggle('active');
-})
-
-document.addEventListener("DOMContentLoaded", function () {
     const nameInput = document.querySelector('input[placeholder="Your full name"]');
     const emailInput = document.querySelector('input[placeholder="Your email address"]');
     const messageInput = document.querySelector('textarea[placeholder="Write a note about your request"]');
 
-    const inputs = [nameInput, emailInput, messageInput];
+    const inputs = [nameInput, emailInput, messageInput].filter(Boolean);
 
     function validateInput(input) {
         const value = input.value.trim();
@@ -51,80 +52,75 @@ document.addEventListener("DOMContentLoaded", function () {
         input.addEventListener("input", () => validateInput(input));
         input.addEventListener("blur", () => validateInput(input));
     });
-});
 
+    const updateBtn = document.getElementById("updateTestimonialsBtn");
+    const testimonialCards = document.querySelectorAll(".testimonial-card");
 
-
-const updateBtn = document.getElementById("updateTestimonialsBtn");
-
-const testimonialCards = document.querySelectorAll(".testimonial-card");
-
-async function fetchUsers(count = 3) {
-  try {
-    const response = await fetch(`https://randomuser.me/api/?results=${count}`);
-    if (!response.ok) throw new Error("Network response was not ok");
-
-    const data = await response.json();
-    return data.results;
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return null;
-  }
-}
-
-function updateTestimonials(users) {
-  if (!users) return;
-
-  testimonialCards.forEach((card, index) => {
-    const user = users[index];
-    if (!user) return;
-
-    const avatar = card.querySelector(".testimonial-avatar");
-    avatar.src = user.picture.medium;
-
-    const name = card.querySelector(".testimonial-name");
-    name.textContent = `${user.name.first} ${user.name.last}`;
-
-    const country = card.querySelector(".testimonial-country");
-    country.textContent = user.location.country;
-
-    const text = card.querySelector(".testimonial-text");
-    text.textContent = "This service really helped me improve my relationship!";
-  });
-}
-
-updateBtn.addEventListener("click", async () => {
-  const users = await fetchUsers(testimonialCards.length);
-  updateTestimonials(users);
-});
-
-
-const scrollToTopBtn = document.getElementById("scrollToTopBtn");
-
-window.addEventListener("scroll", () => {
-    if (window.scrollY > 300) {
-        scrollToTopBtn.style.display = "flex";
-    } else {
-        scrollToTopBtn.style.display = "none";
+    async function fetchUsers(count = 3) {
+        try {
+            const response = await fetch(`https://randomuser.me/api/?results=${count}`);
+            if (!response.ok) throw new Error("Network response was not ok");
+            const data = await response.json();
+            return data.results;
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            return null;
+        }
     }
-});
 
-scrollToTopBtn.addEventListener("click", () => {
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-});
+    function updateTestimonials(users) {
+        if (!users) return;
 
+        testimonialCards.forEach((card, index) => {
+            const user = users[index];
+            if (!user) return;
 
-const cookiesBanner = document.getElementById("cookiesBanner");
-const acceptCookiesBtn = document.getElementById("acceptCookiesBtn");
+            const avatar = card.querySelector(".testimonial-avatar");
+            if (avatar) avatar.src = user.picture.medium;
 
-if (localStorage.getItem("cookiesAccepted")) {
-    cookiesBanner.style.display = "none";
-}
+            const name = card.querySelector(".testimonial-name");
+            if (name) name.textContent = `${user.name.first} ${user.name.last}`;
 
-acceptCookiesBtn.addEventListener("click", () => {
-    localStorage.setItem("cookiesAccepted", "true");
-    cookiesBanner.style.display = "none";
+            const country = card.querySelector(".testimonial-country");
+            if (country) country.textContent = user.location.country;
+
+            const text = card.querySelector(".testimonial-text");
+            if (text) text.textContent = "This service really helped me improve my relationship!";
+        });
+    }
+
+    if (updateBtn && testimonialCards.length > 0) {
+        updateBtn.addEventListener("click", async () => {
+            const users = await fetchUsers(testimonialCards.length);
+            updateTestimonials(users);
+        });
+    }
+
+    const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+    if (scrollToTopBtn) {
+        window.addEventListener("scroll", () => {
+            scrollToTopBtn.style.display = window.scrollY > 300 ? "flex" : "none";
+        });
+
+        scrollToTopBtn.addEventListener("click", () => {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        });
+    }
+
+    const cookiesBanner = document.getElementById("cookiesBanner");
+    const acceptCookiesBtn = document.getElementById("acceptCookiesBtn");
+
+    if (cookiesBanner && acceptCookiesBtn) {
+        if (localStorage.getItem("cookiesAccepted")) {
+            cookiesBanner.style.display = "none";
+        }
+
+        acceptCookiesBtn.addEventListener("click", () => {
+            localStorage.setItem("cookiesAccepted", "true");
+            cookiesBanner.style.display = "none";
+        });
+    }
 });
